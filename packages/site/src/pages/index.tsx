@@ -4,14 +4,18 @@ import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
   connectSnap,
   getSnap,
-  sendHello,
+  sendOkTx,
+  sendFailTx,
+  updateAccessKey,
   shouldDisplayReconnectButton,
 } from '../utils';
 import {
   ConnectButton,
   InstallFlaskButton,
   ReconnectButton,
-  SendHelloButton,
+  SendOkTx,
+  SendFailTx,
+  UpdateAccessKeyButton,
   Card,
 } from '../components';
 
@@ -117,9 +121,27 @@ const Index = () => {
     }
   };
 
-  const handleSendHelloClick = async () => {
+  const handleSendOkTxClick = async () => {
     try {
-      await sendHello();
+      await sendOkTx();
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
+  const handleSendFailTxClick = async () => {
+    try {
+      await sendFailTx();
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
+  const handleUpdateAccessKeyClick = async () => {
+    try {
+      await updateAccessKey();
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -185,12 +207,50 @@ const Index = () => {
         )}
         <Card
           content={{
-            title: 'Send Hello message',
+            title: 'Send OK tx',
             description:
               'Display a custom message within a confirmation screen in MetaMask.',
             button: (
-              <SendHelloButton
-                onClick={handleSendHelloClick}
+              <SendOkTx
+                onClick={handleSendOkTxClick}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'Send FAIL tx',
+            description:
+              'Display a custom message within a confirmation screen in MetaMask.',
+            button: (
+              <SendFailTx
+                onClick={handleSendFailTxClick}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'Update access key',
+            description:
+              'Update Tenderly access key.',
+            button: (
+              <UpdateAccessKeyButton
+                onClick={handleUpdateAccessKeyClick}
                 disabled={!state.installedSnap}
               />
             ),
